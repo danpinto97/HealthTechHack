@@ -1,0 +1,4 @@
+<resources>
+    <string name="app_name">HealthTech</string>
+    <string name= "hello_text">Hi Gregor!</string>
+</resources>
