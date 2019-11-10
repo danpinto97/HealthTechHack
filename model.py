@@ -37,6 +37,10 @@ class User(object):
         self.user_id, self.dosage_left, self.days_since_last_dose))
 
     def answer_form(self, Q1, Q2, Q3, Q4, Q5, Q6, Q7, Q8, Q9, Q10):
+        """
+        Stores a users answers to the form questions in addition to their days since last dosage
+        and dosage left and timestamp.
+        """
         db = 'hth.db'
         conn = sqlite3.connect(db)
         c = conn.cursor()
@@ -44,11 +48,39 @@ class User(object):
         conn.commit()
 
     def user_response(self):
+        """
+        Stores a user and their injection and dosage left in the user database
+        """
         db = 'hth.db'
         conn = sqlite3.connect(db)
         c = conn.cursor()
         c.execute("INSERT INTO user VALUES (?, ?, ?, ?)", (self.user_id, self.dosage_left, self.days_since_last_dose, datetime.datetime.now()))
         conn.commit()
+
+    def last_medication_date(self):
+        """
+        Returns latest day in which a patient was medicated.
+        """
+        db = 'hth.db'
+        conn = sqlite3.connect(db)
+        c = conn.cursor()
+        c.execute("SELECT * FROM user WHERE user_id is ? ORDER BY time DESC LIMIT 1", self.user_id)
+        data = c.fetchall()
+        print(data)
+
+    def last_dose_from_db(self):
+        '''
+        Returns difference in days since last injection. We should store this in a db after completed.
+        '''
+        db = 'hth.db'
+        conn = sqlite3.connect(db)
+        c = conn.cursor()
+        c.execute("SELECT * FROM user WHERE user_id is ? ORDER BY time DESC LIMIT 1", self.user_id)
+        data = c.fetchall()
+        previous_date = data[0][3]
+        previous_date = datetime.datetime.strptime(previous_date, '%Y-%m-%d %H:%M:%S.%f')
+        d = datetime.datetime.today() - previous_date
+        print(d.days)
 
     @classmethod
     def get_sym(self):
@@ -69,7 +101,8 @@ class User(object):
         print(data)
 
 if __name__ == '__main__':
-    # new_user = User("1", 1, 1)
+    new_user = User("2", 1, 0)
     # new_user.print_attributes()
     # new_user.user_response()
-    User.get_users()
+    # User.get_users()
+    new_user.last_dose_from_db()
