@@ -71,7 +71,7 @@ class User(object):
         db = 'hth.db'
         conn = sqlite3.connect(db)
         c = conn.cursor()
-        c.execute("INSERT INTO user VALUES (?, ?, ?, ?)", (self.user_id, self.dosage_left, 0, datetime.datetime.now()))
+        c.execute("INSERT INTO user VALUES (?, ?, ?, ?)", (self.user_id, self.dosage_left-1, 0, datetime.datetime.now()))
         conn.commit()
 
     def last_medication_date(self):
