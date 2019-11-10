@@ -3,6 +3,12 @@
 {% block body %}
   <div class="jumbotron text-center">
     <h1>HealthTechHackathon</h1>
-    <p class="lead">This is the homepage. We need to set this up.</p>
+    <p class="lead">How are you feeling today, Elias?</p>
   </div>
+  <div class = "jumbotron">
+    <p class="card-text text-centered">Days Since Last Medication: {{days_since_inj}}.</p>
+</div>
+<div class = "jumbotron">
+  <p class="card-text text-centered">Dosage Left: {{dosage_left}}.</p>
+</div>
 {% endblock %}
