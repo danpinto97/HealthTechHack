@@ -46,7 +46,6 @@ def form():
             o3 = 0
 
         elias.answer_form(o1,o2,o3,0,0,0,0,0,0,0)
-        print(elias.get_indi_sym())
     return render_template('form.html')
 
 if __name__ == '__main__':
