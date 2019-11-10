@@ -80,8 +80,16 @@ class User(object):
         previous_date = data[0][3]
         previous_date = datetime.datetime.strptime(previous_date, '%Y-%m-%d %H:%M:%S.%f')
         d = datetime.datetime.today() - previous_date
-        print(d.days)
+        return d.days
 
+    def get_remaining_inj_from_db(self):
+        db = 'hth.db'
+        conn = sqlite3.connect(db)
+        c = conn.cursor()
+        c.execute("SELECT * FROM user WHERE user_id is ? ORDER BY time DESC LIMIT 1", self.user_id)
+        data = c.fetchall()
+        return data[0][1]
+        
     @classmethod
     def get_sym(self):
         db = 'hth.db'
