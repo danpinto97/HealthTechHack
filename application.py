@@ -9,7 +9,7 @@ conn = sqlite3.connect(db)
 c = conn.cursor()
 
 application = app = Flask(__name__)
-
+elias = User("2", 12, 0)
 @app.route('/')
 def index():
     elias = User("2", 12, 0)
@@ -19,8 +19,24 @@ def index():
 @app.route('/about')
 def about():
     return render_template('about.html')
-@app.route('/form')
+@app.route('/form', methods=['GET','POST'])
 def form():
+    if request.method == 'POST':
+        try:
+            o1 = request.form['inlineRadioOptions']
+        except:
+            o1 = 0
+        try:
+            o2 = request.form['inlineRadioOptions2']
+        except:
+            o2 = 0
+        try:
+            o3 = request.form['inlineRadioOptions3']
+        except:
+            o3 = 0
+
+        elias.answer_form(o1,o2,o3,0,0,0,0,0,0,0)
+        print(elias.get_indi_sym())
     return render_template('form.html')
 
 if __name__ == '__main__':

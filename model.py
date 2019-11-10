@@ -89,7 +89,15 @@ class User(object):
         c.execute("SELECT * FROM user WHERE user_id is ? ORDER BY time DESC LIMIT 1", self.user_id)
         data = c.fetchall()
         return data[0][1]
-        
+
+    def get_indi_sym(self):
+        db = 'hth.db'
+        conn = sqlite3.connect(db)
+        c = conn.cursor()
+        c.execute("SELECT * FROM user_symptoms WHERE user_id is ?", self.user_id)
+        data = c.fetchall()
+        return data
+
     @classmethod
     def get_sym(self):
         db = 'hth.db'
