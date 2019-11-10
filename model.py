@@ -146,8 +146,8 @@ class User(object):
         print(data)
 
 if __name__ == '__main__':
-    new_user = User("2", 1, 0)
+    #new_user = User("2", 1, 0)
     # new_user.print_attributes()
     # new_user.user_response()
-    # User.get_users()
-    new_user.last_dose_from_db()
+    User.get_users()
+    #new_user.last_dose_from_db()
