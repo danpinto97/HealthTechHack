@@ -57,6 +57,23 @@ class User(object):
         c.execute("INSERT INTO user VALUES (?, ?, ?, ?)", (self.user_id, self.dosage_left, self.days_since_last_dose, datetime.datetime.now()))
         conn.commit()
 
+    def reup(self,dosage):
+        """
+        Stores a user and their injection and dosage left IF they have updated their amount of dosage left
+        """
+        db = 'hth.db'
+        conn = sqlite3.connect(db)
+        c = conn.cursor()
+        c.execute("INSERT INTO user VALUES (?, ?, ?, ?)", (self.user_id, dosage, self.days_since_last_dose, datetime.datetime.now()))
+        conn.commit()
+
+    def just_dosed(self):
+        db = 'hth.db'
+        conn = sqlite3.connect(db)
+        c = conn.cursor()
+        c.execute("INSERT INTO user VALUES (?, ?, ?, ?)", (self.user_id, self.dosage_left, 0, datetime.datetime.now()))
+        conn.commit()
+
     def last_medication_date(self):
         """
         Returns latest day in which a patient was medicated.
@@ -97,6 +114,18 @@ class User(object):
         c.execute("SELECT * FROM user_symptoms WHERE user_id is ?", self.user_id)
         data = c.fetchall()
         return data
+
+    @classmethod
+    def get_recent_user_from_id(self, id):
+        """
+        Returns latest day in which a patient was medicated.
+        """
+        db = 'hth.db'
+        conn = sqlite3.connect(db)
+        c = conn.cursor()
+        c.execute("SELECT * FROM user WHERE user_id is ? ORDER BY time DESC LIMIT 1", id)
+        data = c.fetchall()
+        return User(id, data[0][1], data[0][2])
 
     @classmethod
     def get_sym(self):
