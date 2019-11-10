@@ -5,10 +5,26 @@
     <h1>HealthTechHackathon</h1>
     <p class="lead">How are you feeling today, Elias?</p>
   </div>
-  <div class = "jumbotron">
-    <p class="card-text text-centered">Days Since Last Medication: {{days_since_inj}}.</p>
-</div>
-<div class = "jumbotron">
-  <p class="card-text text-centered">Dosage Left: {{dosage_left}}.</p>
+
+  <div class="jumbotron jumbotron-fluid">
+  <form method="POST" role="form" class="form-horizontal">
+  <div class="container">
+    <h1 class="display-4">Days Since Last Medication: {{days_since_inj}}</h1>
+      <div class="row">
+      <input type="submit" class="btn btn-secondary" name= "Dosed" value = "Press this button if you have taken your medication today."> </input>
+    </div>
+
+  </div>
+  </form>
+  <form method="POST" role="form" class="form-horizontal">
+  <div class="container">
+    <h1 class="display-4">Dosage Left: {{dosage_left}}</h1>
+    <p class="lead">Please enter the amount of medication you have left if
+    you recently obtaiend more.</p>
+    <div class="row">
+      <input type="text" class="btn btn-secondary" name= "Meds" value =""> </input>
+    </div>
+  </div>
+  </form>
 </div>
 {% endblock %}

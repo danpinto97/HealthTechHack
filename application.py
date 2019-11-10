@@ -9,11 +9,21 @@ conn = sqlite3.connect(db)
 c = conn.cursor()
 
 application = app = Flask(__name__)
-elias = User("2", 12, 0)
-@app.route('/')
+elias = User.get_recent_user_from_id("2")
+@app.route('/', methods=['GET','POST'])
 def index():
-    elias = User("2", 12, 0)
+    elias = User.get_recent_user_from_id("2")
     #load the homepage
+    if request.method == 'POST':
+        print(request.form)
+        if 'Dosed' in request.form:
+            elias.just_dosed()
+            #reset days to 0 and store in database
+        elif 'Meds' in request.form:
+            try:
+                elias.reup(int(request.form['Meds']))
+            except:
+                pass
     return render_template('home.html', days_since_inj = elias.last_dose_from_db(), dosage_left = elias.get_remaining_inj_from_db())
 
 @app.route('/about')
