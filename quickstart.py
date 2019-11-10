@@ -106,6 +106,7 @@ def findInjTime(free_list, proj_datetime):
             else:
                 if event.start - proj_datetime < proj_datetime - previous_event.end:
                     closest_event = event
+                    event.display()
                 else:
                     closest_event = previous_event
                     closest_event.beforeTime = True
@@ -113,9 +114,10 @@ def findInjTime(free_list, proj_datetime):
     proj_end = proj_datetime + datetime.timedelta(0, 0, 0, 0, 15)
     if closest_event.containsTime:
         if closest_event.end <= proj_end:
-            return proj_datetime
+            return proj_datetime - (proj_end - closest_event.end)
         else:
-            return closest_event.end - datetime.timedelta(0, 0, 0, 0, 15)
+            return proj_datetime
+            #eturn closest_event.end - datetime.timedelta(0, 0, 0, 0, 15)
     else:
         return closest_event.start + datetime.timedelta(0, 0, 0, 0, 5)
 
@@ -137,11 +139,11 @@ def writeToCalendar(service, time):
       'description': 'Scheduled injection time',
       'start': {
         'dateTime': time,
-        'timeZone': 'America/Los_Angeles',
+        'timeZone': 'UTC',
       },
       'end': {
         'dateTime': time,
-        'timeZone': 'America/Los_Angeles',
+        'timeZone': 'UTC',
       },
       'reminders': {
         'useDefault': False,
@@ -240,10 +242,11 @@ def main():
         current.next = tmp
         current = tmp
     getFreePeriods(head)[0].display()
+    print(findInjTime(getFreePeriods(head), getProjectedTime(mock_sched_day,prev_weekday_time, prev_weekend_time)))
     #head.display()
     writeToCalendar(service, findInjTime(getFreePeriods(head), getProjectedTime(mock_sched_day,prev_weekday_time, prev_weekend_time)))
 
 
-# 
+
 # if __name__ == '__main__':
 #     main()
