@@ -3,10 +3,12 @@
 {% block body %}
 
 <html>
-<div class="jumbotron text-center bg-info">
-  <h1>How are you feeling?</h1>
-  </div>
+<div class="jumbotron text-center">
+  <h1>How are you feeling today, Elias?</h1>
+  <h5>Help us gain insight on your condition by providing updates frequently</h5>
+
 <form method="POST" role="form" class="form-horizontal">
+<div class="jumbotron jumbotron-fluid">
 <div class="container">
 <body>
       <h2>Please rate the pain in your arms and hands from 1 to 10</h2>
@@ -50,8 +52,10 @@
         <input class="form-check-input" type="radio" name="inlineRadioOptions" id="1inlineRadio10" value=10>
         <label class="form-check-label" for="1inlineRadio10">10</label>
       </div>
+      </div>
 </div>
 
+<div class="jumbotron jumbotron-fluid">
 <div class="container">
 <body>
       <h2>Please rate the pain in your feet and knees from 1 to 10</h2>
@@ -96,7 +100,8 @@
         <label class="form-check-label" for="1inlineRadio10">10</label>
       </div>
 </div>
-
+</div>
+<div class="jumbotron jumbotron-fluid">
 <div class="container">
 <body>
       <h2>How have you been sleeping from 1 to 10</h2>
@@ -141,9 +146,10 @@
         <label class="form-check-label" for="1inlineRadio10">10</label>
       </div>
 </div>
-<div class="row float-md-right p-5">
-  <input type="submit" class="btn btn-primary"> </input>
+</div>
+<div class="row float-md-right">
+  <input type="submit" class="btn btn-primary" value="Submit" > </input>
 </div>
 </form>
-
+</div>
 {% endblock %}
