@@ -2,13 +2,14 @@ from __future__ import print_function
 import datetime
 import pickle
 import os.path
+from model import User
 from googleapiclient.discovery import build
 from google_auth_oauthlib.flow import InstalledAppFlow
 from google.auth.transport.requests import Request
-from date import tz
-
+# from datetime import datetime
+from dateutil import tz
 # If modifying these scopes, delete the file token.pickle.
-SCOPES = ['https://www.googleapis.com/auth/calendar.readonly']
+SCOPES = ['https://www.googleapis.com/auth/calendar']
 
 
 class Event():
@@ -16,22 +17,31 @@ class Event():
         self.start = start_datetime
         self.end = end_datetime
         self.next = None
-        
+
         self.containsTime = False
         self.beforeTime = False
-        
+
     def addEvent(self, event):
         self.next = event
         return self.next
-    
+
+    def get_start(self):
+        return self.start
+
+    def get_end(self):
+        return self.end
+
+    def get_next(self):
+        return self.next
+
     def __str__(self):
         return("(" + str(self.start) + " , " + str(self.end) + ")")
-        
+
     def display(self):
         print(self)
         if self.next is not None:
             self.next.display()
-        
+
 class TZ(datetime.tzinfo):
     def __init__(self, hr_offset):
         self.hr_offset = hr_offset
@@ -42,7 +52,7 @@ def convertTimeToDT(hour_variable, date):
     day = date.day
     month = date.month
     year = date.year
-    
+
     return datetime.datetime(year, month, day, hour_variable[0], hour_variable[1])
 
 
@@ -58,7 +68,7 @@ def getFreePeriods(eventsHead):
     slow = eventsHead
     fast = slow.next
     list = []
-    
+
     while(fast is not None):
         if (fast.start - slow.end) >= datetime.timedelta(0):
             if(fast.start - slow.end) >= datetime.timedelta(0, 0, 0, 0, 20):
@@ -70,36 +80,9 @@ def getFreePeriods(eventsHead):
             fast = fast.next
         else:
             fast = fast.next
-            
+
     return list
 
-def writeToCalendar(time):
-    #end = time + 15 minutes
-    #convert time to string
-    #convert end to string
-    event = {
-      'summary': 'Injection',
-      'location': 'Home',
-      'description': 'Scheduled injection time',
-      'start': {
-        'dateTime': str(time).append("-05:00"),
-        'timeZone': 'America/Los_Angeles',
-      },
-      'end': {
-        'dateTime': str(time).append("-05:00"),
-        'timeZone': 'America/Los_Angeles',
-      },
-      'reminders': {
-        'useDefault': False,
-        'overrides': [
-          {'method': 'email', 'minutes': 24 * 60},
-          {'method': 'popup', 'minutes': 10},
-        ],
-      },
-    }
-
-event = service.events().insert(calendarId='primary', body=event).execute()
-print ('Event created: %s' % (event.get('htmlLink')))  
 
 def getProjectedTime(schedule_day, weekday_hours, weekend_hours):
     # Accepts date of scheduling and weekday and weekend hours and returns pojected next best injection datetime
@@ -111,13 +94,14 @@ def getProjectedTime(schedule_day, weekday_hours, weekend_hours):
         return weekend_datetime
 
 def findInjTime(free_list, proj_datetime):
+    print(free_list)
     previous_event = free_list[0]
     closest_event = free_list[0]
     for event in free_list:
         if event.end > proj_datetime:
             if event.start < proj_datetime:
                 closest_event = event
-                self.containsTime = True
+                event.containsTime = True
                 break
             else:
                 if event.start - proj_datetime < proj_datetime - previous_event.end:
@@ -125,7 +109,7 @@ def findInjTime(free_list, proj_datetime):
                 else:
                     closest_event = previous_event
                     closest_event.beforeTime = True
-                break        
+                break
     proj_end = proj_datetime + datetime.timedelta(0, 0, 0, 0, 15)
     if closest_event.containsTime:
         if closest_event.end <= proj_end:
@@ -135,14 +119,43 @@ def findInjTime(free_list, proj_datetime):
     else:
         return closest_event.start + datetime.timedelta(0, 0, 0, 0, 5)
 
-def sinceLastMedication():
-        return datetime of sincelastMedication
+def lastMedicationDate():
+        return datetime.datetime(2019, 10, 11)
 
+
+def writeToCalendar(service, time):
+    #end = time + 15 minutes
+    #convert time to string
+    #convert end to string
+
+    time = str(time) + '-05:00'
+    time = time.split(' ')
+    time = time[0] + 'T' + time[1]
+    event = {
+      'summary': 'Injection',
+      'location': 'Home',
+      'description': 'Scheduled injection time',
+      'start': {
+        'dateTime': time,
+        'timeZone': 'America/Los_Angeles',
+      },
+      'end': {
+        'dateTime': time,
+        'timeZone': 'America/Los_Angeles',
+      },
+      'reminders': {
+        'useDefault': False,
+        'overrides': [
+          {'method': 'email', 'minutes': 24 * 60},
+          {'method': 'popup', 'minutes': 10},
+        ],
+      },
+    }
+    event = service.events().insert(calendarId='primary', body=event).execute()
+    print ('Event created: %s' % (event.get('htmlLink')))
 
 def main():
-    
-    
-    
+
     creds = None
     # The file token.pickle stores the user's access and refresh tokens, and is
     # created automatically when the authorization flow completes for the first
@@ -164,80 +177,73 @@ def main():
 
     service = build('calendar', 'v3', credentials=creds)
 
-    
+
     # Call the Calendar API
-    
-    from_zone = tz.gettz('America/New_York')
+    elias = User.get_recent_user_from_id("2")
+    now = datetime.datetime.now() + datetime.timedelta(days= (elias.last_dose_from_db() + 29)) # holds date
+    print(now)
+    # start_time = datetime.time(0, 0, 0)
+    # startingPt = now.combine(now.date(),start_time)
+
     to_zone = tz.gettz('UTC')
-    
-    
-    now = datetime.datetime.today().date() - sinceLastMedication() + 29
-    now = now.replace(tzinfo = from_zone)
-    
-    now_utc = now.astimezone(to_zone)
-    
-    
-    now = datetime.datetime.utcnow().isoformat() + 'Z'
-    events_result = service.events().list(calendarId='primary', timeMin=str(now_utc) + 'Z',
+    from_zone = tz.gettz('America/New_York')
+    utc = now.replace(tzinfo=from_zone)
+
+    print(utc)
+    # Convert time zone
+    central = utc.astimezone(to_zone)
+    central = str(central).split(' ')
+    central = central[0] + 'T' + central[1]
+    central = central.split('+')[0]  + 'Z'
+
+    print(central)
+
+    print('Getting the upcoming 10 events')
+    events_result = service.events().list(calendarId='primary', timeMin=(str(central)),
                                         maxResults=10, singleEvents=True,
                                         orderBy='startTime').execute()
-                                        
+
     events = events_result.get('items', [])
-    
+
     if not events:
         print('No upcoming events found.')
     for event in events:
         start = event['start'].get('dateTime', event['start'].get('date'))
         print(start, event['summary'])
-    """    
-    lastMedDay = lastmedicationdate() #Instance of datetime
-    
-    
-    
-    
-    datetime.datetime.strptime(events[0]['start']['dateTime'][:-6], '%Y-%m-%dT%H:%M:%S')
-    
-    delta = CurrentDay - lastmedicationdate()
-    
-    def lastMedicationDate():
-        return datetime.datetime(2019, 11, 20)
-    print(lastMedicationDate())
-    
-    """
-    
-    
-    
+
+
+    print(convertEventToDT(events[0]).start.tzinfo)
+
     nextInjectionSet = False
     injection_period_days = 30
     prev_weekend_time = (12, 0)
-    
+
     prev_weekday_time = (18, 0)
-    
+
     abs_earliest = (6, 0)
     abs_latest = (22, 0)
 
-    sched_day = datetime.date(2019, 11, 11)
+    mock_sched_day = now
 
-    while (sched_day - datetime.datetime.today().date() < 7 and not nextInjectionSet):
-    
-    
-        #Setup LL of events in calendar
-        head = Event(convertTimeToDT((0, 0), sched_day), convertTimeToDT(abs_earliest, sched_day))
-        current = head
-        end = convertTimeToDT(abs_latest, sched_day)
-        
-        for event in events:
-            tmp = convertEventToDT(event)
-            if startingPt < tmp.end:
-                if end < tmp.start:
-                    current.next = Event(end, convertTimeToDT((23, 59), sched_day))
-                    break
-                current.next = tmp
-                current = tmp
-        
-        inj_time = findInjTime(getFreePeriods(head), getProjectedTime(sched_day,prev_weekday_time, prev_weekend_time))
-        
-    
-           
+
+    #Setup LL of events in calendar
+    head = Event(convertTimeToDT((0, 0), mock_sched_day), convertTimeToDT(abs_earliest, mock_sched_day))
+    current = head
+    end = convertTimeToDT(abs_latest, mock_sched_day)
+
+    for event in events:
+        tmp = convertEventToDT(event)
+
+        if end < tmp.start:
+            current.next = Event(end, convertTimeToDT((23, 59), mock_sched_day))
+            break
+        current.next = tmp
+        current = tmp
+    getFreePeriods(head)[0].display()
+    #head.display()
+    writeToCalendar(service, findInjTime(getFreePeriods(head), getProjectedTime(mock_sched_day,prev_weekday_time, prev_weekend_time)))
+
+
+
 if __name__ == '__main__':
     main()
