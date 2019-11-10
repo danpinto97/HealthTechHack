@@ -2,7 +2,7 @@ from flask import Flask, render_template, request, redirect, url_for
 from model import User
 # from wtforms import StringField, Form, SubmitField
 # from wtforms.validators import DataRequired
-
+import quickstart
 import sqlite3
 db = 'challenge.db'
 conn = sqlite3.connect(db)
@@ -24,6 +24,8 @@ def index():
                 elias.reup(int(request.form['Meds']))
             except:
                 pass
+        elif 'Schedule' in request.form:
+            quickstart.main()
     return render_template('home.html', days_since_inj = elias.last_dose_from_db(), dosage_left = elias.get_remaining_inj_from_db())
 
 @app.route('/about')

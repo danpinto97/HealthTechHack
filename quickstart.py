@@ -244,6 +244,6 @@ def main():
     writeToCalendar(service, findInjTime(getFreePeriods(head), getProjectedTime(mock_sched_day,prev_weekday_time, prev_weekend_time)))
 
 
-
-if __name__ == '__main__':
-    main()
+# 
+# if __name__ == '__main__':
+#     main()
